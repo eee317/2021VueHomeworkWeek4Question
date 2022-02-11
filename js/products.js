@@ -1,5 +1,8 @@
 let productModal=null;
 let delProductModal=null
+const url='https://vue3-course-api.hexschool.io';
+const api_path='peiying';
+
 import {createApp} from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.29/vue.esm-browser.min.js';
 import pagination from './pagination.js'
 const app=createApp({
@@ -10,8 +13,6 @@ const app=createApp({
     },
     data(){
         return{
-            url:'https://vue3-course-api.hexschool.io',
-            api_path:'peiying',
             isNew:false,
             pagination:{},
             products:[],
@@ -22,7 +23,7 @@ const app=createApp({
     },
     methods: {
         check(){
-            const apiUrl=`${this.url}/v2/api/user/check`;
+            const apiUrl=`${url}/v2/api/user/check`;
             axios.post(apiUrl).then(res=>{
                 
                 this.getProducts()
@@ -33,7 +34,7 @@ const app=createApp({
             })
         },
         getProducts(page=1){
-            const apiUrl=`${this.url}/v2/api/${this.api_path}/admin/products/?page=${page}`
+            const apiUrl=`${url}/v2/api/${api_path}/admin/products/?page=${page}`
             axios.get(apiUrl).then(res=>{
                 this.pagination=res.data.pagination
                 this.products=res.data.products
@@ -64,19 +65,7 @@ const app=createApp({
         },
         
         
-        delProduct(){
-            const apiUrl=`${this.url}/v2/api/${this.api_path}/admin/product/${this.tempProduct.id}`
-            axios.delete(apiUrl)
-            .then(res=>{
-                console.log(res.data)
-                delProductModal.hide();
-                alert(res.data.message)
-                this.getProducts();
-            })
-            .catch(err=>{
-                console.dir(err)
-            })
-        }
+        
 
     },
     mounted() {
@@ -101,18 +90,11 @@ app.component('productModal',{
     props:['tempProduct','isNew'],
     template:`#templateForProductModal`,
     methods:{
-        data() {
-            return {
-            url: 'https://vue3-course-api.hexschool.io',
-            api_path: 'peiying',
-            };
-        },
-        
         updata(){
-            let apiUrl=`${this.url}/v2/api/${this.api_path}/admin/product`;
+            let apiUrl=`${url}/v2/api/${api_path}/admin/product`;
             let http='post';
             if(!this.isNew){
-                apiUrl=`${this.url}/v2/api/${this.api_path}/admin/product/${this.tempProduct.id}`
+                apiUrl=`${url}/v2/api/${api_path}/admin/product/${this.tempProduct.id}`
                 http='put'
             }
             axios[http](apiUrl,{data:this.tempProduct})
@@ -132,6 +114,26 @@ app.component('productModal',{
             this.tempProduct.imagesUrl=[];
             this.tempProduct.imagesUrl.push('');
         },
+    }
+});
+
+app.component('delProductModal', {
+    template: '#delProductModal',
+    props: ['item'],
+    methods:{
+        delProduct(){
+            const apiUrl=`${url}/v2/api/${api_path}/admin/product/${this.tempProduct.id}`
+            axios.delete(apiUrl)
+            .then(res=>{
+                console.log(res.data)
+                delProductModal.hide();
+                alert(res.data.message)
+                this.$emit('update');
+            })
+            .catch(err=>{
+                console.dir(err)
+            })
+        }
     }
 })
 
